@@ -55,7 +55,7 @@ apiVersion: cosmos.strange.love/v1
 kind: CosmosFullNode
 metadata:
   name: cosmoshub
-  namespace: default
+  namespace: cosmos-operator-system
 spec:
   chain:
     app:
