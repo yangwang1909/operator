@@ -5,8 +5,6 @@ metadata:
   # Name should be the chain name and network environment.
   name: cosmoshub-mainnet
 spec:
-  fullNodeRef: # must be a CosmosFullNode
-    namespace: cosmos-operator-system
   replicas: 1
   chain:
     network: mainnet
