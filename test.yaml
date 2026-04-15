@@ -5,7 +5,7 @@ metadata:
   # Name should be the chain name and network environment.
   name: cosmoshub-mainnet
 spec:
-  replicas: 2
+  replicas: 1
   chain:
     network: mainnet
     chainID: cosmoshub-4
