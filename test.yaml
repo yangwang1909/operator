@@ -14,15 +14,17 @@ spec:
     genesisURL: https://snapshots.polkachu.com/genesis/cosmos/genesis.json
     network: mainnet
     skipInvariants: true
-    snapshotURL: https://snapshots.polkachu.com/snapshots/cosmos/cosmos_30655955.tar.lz4
+    snapshotURL: "https://snapshots1.polkachu.com/snapshots/cosmos/cosmos_11701512.tar.lz4"
   podTemplate:
     image: ghcr.io/strangelove-ventures/heighliner/gaia:v24.0.0
     resources:
       requests:
-        memory: 16Gi
+        cpu: "0.5"
+      limits:
+        cpu: "1"
   replicas: 1 # TODO change to 1 to use less resources
   volumeClaimTemplate:
     resources:
       requests:
         storage: 200Gi
-    storageClassName: standard # TODO
+    storageClassName: "standard-rwo"
