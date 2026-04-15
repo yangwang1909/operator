@@ -88,7 +88,7 @@ build: generate ## Build manager binary.
 run: manifests generate ## Run a controller from your host.
 	go run . --log-level=debug
 
-PRE_IMG ?= ghcr.io/yangwang1909/cosmos-operator:dev5367ebc #$(shell git describe --always --dirty)
+PRE_IMG ?= us-west1-docker.pkg.dev/stickbreak-489423/stickbreak1/operator:dev #$(shell git describe --always --dirty)
 .PHONY: docker-prerelease
 docker-prerelease: ## Build and push a prerelease docker image.
 	IMG=$(PRE_IMG) $(MAKE) docker-build docker-push
