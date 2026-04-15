@@ -5,7 +5,7 @@ metadata:
 spec:
   # Required
   fullNodeRef: # must be a CosmosFullNode
-    namespace: default
+    namespace: cosmos-operator-syste
     name: cosmoshub
   schedule: "0 * * * *" # hourly
   volumeSnapshotClassName: cosmos-snapshot
