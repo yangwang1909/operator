@@ -25,4 +25,4 @@ spec:
     resources:
       requests:
         storage: 200Gi
-    storageClassName: <your chosen storage class> # TODO
+    storageClassName: standard # TODO
