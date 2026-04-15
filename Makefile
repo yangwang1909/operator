@@ -123,6 +123,13 @@ deploy-prerelease: install docker-prerelease ## Install CRDs, build docker image
 	@#Hack to reset tag to avoid git thrashing.
 	@cd config/manager && $(KUSTOMIZE) edit set image controller=ghcr.io/strangelove-ventures/cosmos-operator:latest
 
+.PHONY: deploy-nobuild
+deploy-nobuild:
+	cd config/manager && $(KUSTOMIZE) edit set image controller=$(PRE_IMG)
+	$(KUSTOMIZE) build config/default | kubectl apply -f -
+	@#Hack to reset tag to avoid git thrashing.
+	@cd config/manager && $(KUSTOMIZE) edit set image controller=ghcr.io/strangelove-ventures/cosmos-operator:latest
+
 .PHONY: deploy
 deploy: manifests kustomize ## Deploy controller to the K8s cluster specified in ~/.kube/config.
 	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
