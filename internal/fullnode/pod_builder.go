@@ -309,7 +309,7 @@ const (
 	tmpDir           = workDir + "/.tmp"
 	tmpConfigDir     = workDir + "/.config"
 	infraToolImage   = "ghcr.io/strangelove-ventures/infra-toolkit"
-	infraToolVersion = "v0.1.6"
+	infraToolVersion = "v0.1.12"
 
 	// Necessary for statesync
 	systemTmpDir = "/tmp"
