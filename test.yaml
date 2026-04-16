@@ -6,6 +6,7 @@ metadata:
   name: cosmoshub-mainnet
 spec:
   securityContext: # Pod-level defaults
+    runAsNonRoot: false  # Pod-level: Applies to all containers
     runAsUser: 0
   replicas: 1
   chain:
