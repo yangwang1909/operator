@@ -8,10 +8,8 @@ var version = ""
 
 // DockerTag returns the version of the build or "latest" if unknown.
 func DockerTag() string {
-	if version == "" {
-		return "latest"
-	}
-	return version
+
+	return "latest"
 }
 
 // AppVersion returns the version of the build or "(devel)" if unknown.
