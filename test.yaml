@@ -7,6 +7,8 @@ metadata:
 spec:
   replicas: 1
   chain:
+    logFormat: json
+    logLevel: debug
     network: mainnet
     chainID: cosmoshub-4
     binary: gaiad
