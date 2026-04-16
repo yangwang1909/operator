@@ -498,20 +498,20 @@ func startCmdAndArgs(crd *cosmosv1.CosmosFullNode) (string, []string) {
 }
 
 func startCommandArgs(crd *cosmosv1.CosmosFullNode) []string {
-	args := []string{"validate-genesis; sleep 20m; gaiad start", "--home", ChainHomeDir(crd)}
-	cfg := crd.Spec.ChainSpec
-	if cfg.SkipInvariants {
-		args = append(args, "--x-crisis-skip-assert-invariants")
-	}
-	if lvl := cfg.LogLevel; lvl != nil {
-		args = append(args, "--log_level", *lvl)
-	}
-	if format := cfg.LogFormat; format != nil {
-		args = append(args, "--log_format", *format)
-	}
-	if len(crd.Spec.ChainSpec.AdditionalStartArgs) > 0 {
-		args = append(args, crd.Spec.ChainSpec.AdditionalStartArgs...)
-	}
+	args := []string{"validate-genesis && sleep 40m"} // && gaiad start", "--home", ChainHomeDir(crd)}
+	//cfg := crd.Spec.ChainSpec
+	//if cfg.SkipInvariants {
+	//	args = append(args, "--x-crisis-skip-assert-invariants")
+	//}
+	//if lvl := cfg.LogLevel; lvl != nil {
+	//	args = append(args, "--log_level", *lvl)
+	//}
+	//if format := cfg.LogFormat; format != nil {
+	//	args = append(args, "--log_format", *format)
+	//}
+	//if len(crd.Spec.ChainSpec.AdditionalStartArgs) > 0 {
+	//	args = append(args, crd.Spec.ChainSpec.AdditionalStartArgs...)
+	//}
 	return args
 }
 
