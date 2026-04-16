@@ -100,6 +100,8 @@ docker-build: #test ## Build docker image with the manager.
 
 .PHONY: docker-push
 docker-push: ## Push docker image with the manager.
+	gcloud config set auth/impersonate_service_account yangwang@stickbreak-489423.iam.gserviceaccount.com
+	sleep 5s
 	docker push ${IMG}
 
 ##@ Deployment
