@@ -498,7 +498,7 @@ func startCmdAndArgs(crd *cosmosv1.CosmosFullNode) (string, []string) {
 }
 
 func startCommandArgs(crd *cosmosv1.CosmosFullNode) []string {
-	args := []string{"start", "--home", ChainHomeDir(crd)}
+	args := []string{"validate-genesis && gaiad start", "--home", ChainHomeDir(crd)}
 	cfg := crd.Spec.ChainSpec
 	if cfg.SkipInvariants {
 		args = append(args, "--x-crisis-skip-assert-invariants")
