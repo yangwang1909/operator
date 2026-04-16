@@ -461,7 +461,7 @@ fi
 	// After the status is patched, the pod will be restarted with the correct image.
 	required = append(required, corev1.Container{
 		Name:    "version-check",
-		Image:   "ghcr.io/strangelove-ventures/cosmos-operator:" + version.DockerTag(),
+		Image:   "ghcr.io/strangelove-ventures/cosmos-operator:latest",
 		Command: versionCheckCmd,
 		Resources: corev1.ResourceRequirements{
 			Requests: corev1.ResourceList{
