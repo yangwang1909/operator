@@ -103,6 +103,8 @@ docker-push: ## Push docker image with the manager.
 	gcloud config set auth/impersonate_service_account yangwang@stickbreak-489423.iam.gserviceaccount.com
 	gcloud config set auth/impersonate_service_account yangwang@stickbreak-489423.iam.gserviceaccount.com
 	docker push ${IMG}
+	docker push ${IMG}
+
 
 ##@ Deployment
 

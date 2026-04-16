@@ -5,6 +5,8 @@ metadata:
   # Name should be the chain name and network environment.
   name: cosmoshub-mainnet
 spec:
+  securityContext: # Pod-level defaults
+    runAsUser: 0
   replicas: 1
   chain:
     logFormat: json
