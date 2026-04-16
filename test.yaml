@@ -13,7 +13,7 @@ spec:
     skipInvariants: true
     genesisURL: "https://snapshots.polkachu.com/genesis/cosmos/genesis.json"
     # Get latest snapshot at: https://www.polkachu.com/tendermint_snapshots/cosmos
-    snapshotURL: "https://snapshots.polkachu.com/snapshots/cosmos/cosmos_30655955.tar.lz4"
+    snapshotURL: "https://snapshots.polkachu.com/snapshots/cosmos/cosmos_30670902.tar.lz4"
     # CometBFT config (translates to config.toml)
     config:
       peers: "ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@seeds.polkachu.com:14956"
