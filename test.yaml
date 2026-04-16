@@ -23,9 +23,6 @@ spec:
     app:
       minGasPrice: "0.0025uatom"
   podTemplate:
-    securityContext: # Pod-level defaults
-      runAsNonRoot: false  # Pod-level: Applies to all containers
-      runAsUser: 0
     image: "ghcr.io/strangelove-ventures/heighliner/gaia:latest"
     resources:
       requests:

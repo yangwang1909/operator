@@ -65,9 +65,9 @@ func NewPodBuilder(crd *cosmosv1.CosmosFullNode) PodBuilder {
 		Spec: corev1.PodSpec{
 			ServiceAccountName: serviceAccountName(crd),
 			SecurityContext: &corev1.PodSecurityContext{
-				RunAsUser:           ptr(int64(1025)),
-				RunAsGroup:          ptr(int64(1025)),
-				RunAsNonRoot:        ptr(true),
+				RunAsUser:           ptr(int64(0)),
+				RunAsGroup:          ptr(int64(0)),
+				RunAsNonRoot:        ptr(false),
 				FSGroup:             ptr(int64(1025)),
 				FSGroupChangePolicy: ptr(corev1.FSGroupChangeOnRootMismatch),
 				SeccompProfile:      &corev1.SeccompProfile{Type: corev1.SeccompProfileTypeRuntimeDefault},
