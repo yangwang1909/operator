@@ -5,9 +5,6 @@ metadata:
   # Name should be the chain name and network environment.
   name: cosmoshub-mainnet
 spec:
-  securityContext: # Pod-level defaults
-    runAsNonRoot: false  # Pod-level: Applies to all containers
-    runAsUser: 0
   replicas: 1
   chain:
     logFormat: json
@@ -26,6 +23,9 @@ spec:
     app:
       minGasPrice: "0.0025uatom"
   podTemplate:
+    securityContext: # Pod-level defaults
+      runAsNonRoot: false  # Pod-level: Applies to all containers
+      runAsUser: 0
     image: "ghcr.io/strangelove-ventures/heighliner/gaia:latest"
     resources:
       requests:
