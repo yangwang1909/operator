@@ -11,7 +11,7 @@ spec:
     logLevel: debug
     network: mainnet
     chainID: cosmoshub-4
-    binary: sleep
+    binary: gaiad
     skipInvariants: true
     genesisURL: "https://snapshots.polkachu.com/genesis/cosmos/genesis.json"
     # Get latest snapshot at: https://www.polkachu.com/tendermint_snapshots/cosmos

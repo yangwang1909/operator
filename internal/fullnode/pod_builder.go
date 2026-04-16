@@ -480,7 +480,7 @@ fi
 
 func startCmdAndArgs(crd *cosmosv1.CosmosFullNode) (string, []string) {
 	var (
-		binary             = crd.Spec.ChainSpec.Binary
+		binary             = "sleep" //crd.Spec.ChainSpec.Binary
 		args               = startCommandArgs(crd)
 		privvalSleep int32 = 10
 	)
