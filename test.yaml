@@ -33,6 +33,6 @@ spec:
     storageClassName: "standard-rwo"
     resources:
       requests:
-        storage: 100Gi
+        storage: 50Gi
 
 
