@@ -29,13 +29,10 @@ spec:
         cpu: "0.5"
       limits:
         cpu: "1"
-  volumeClaimTemplates:
-    - metadata:
-        name: www
-      spec:
-        storageClassName: "my-storage-class"
-        resources:
-          requests:
-            storage: 50Gi
+  volumeClaimTemplate:
+    storageClassName: "standard-rwo"
+    resources:
+      requests:
+        storage: 50Gi
 
 

@@ -1,0 +1,936 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    app.kubernetes.io/ordinal: '0'
+    cosmos.strange.love/config-checksum: a61cdfe3
+  creationTimestamp: '2026-05-26T02:24:06Z'
+  generation: 1
+  labels:
+    app.kubernetes.io/component: CosmosFullNode
+    app.kubernetes.io/created-by: cosmos-operator
+    app.kubernetes.io/instance: cosmoshub-mainnet-0
+    app.kubernetes.io/name: cosmoshub-mainnet
+    app.kubernetes.io/revision: eb20ba98
+    app.kubernetes.io/version: latest
+    cosmos.strange.love/network: mainnet
+    cosmos.strange.love/type: FullNode
+    topology.kubernetes.io/region: us-central1
+    topology.kubernetes.io/zone: us-central1-b
+  name: cosmoshub-mainnet-0
+  namespace: cosmos-operator-system
+  ownerReferences:
+  - apiVersion: cosmos.strange.love/v1
+    blockOwnerDeletion: true
+    controller: true
+    kind: CosmosFullNode
+    name: cosmoshub-mainnet
+    uid: 5adc8fb0-74ef-4d4e-a1d3-c55bb7e41bc8
+  resourceVersion: '1779766151937215004'
+  uid: 02139ce9-ddd2-479c-97c1-77ac87464259
+spec:
+  containers:
+  - args:
+    - 24h
+    command:
+    - sleep
+    env:
+    - name: HOME
+      value: /home/operator
+    - name: CHAIN_HOME
+      value: /home/operator/cosmos
+    - name: GENESIS_FILE
+      value: /home/operator/cosmos/config/genesis.json
+    - name: ADDRBOOK_FILE
+      value: /home/operator/cosmos/config/addrbook.json
+    - name: CONFIG_DIR
+      value: /home/operator/cosmos/config
+    - name: DATA_DIR
+      value: /home/operator/cosmos/data
+    image: ghcr.io/strangelove-ventures/heighliner/gaia:latest
+    imagePullPolicy: Always
+    name: node
+    ports:
+    - containerPort: 1317
+      name: api
+      protocol: TCP
+    - containerPort: 8080
+      name: rosetta
+      protocol: TCP
+    - containerPort: 9090
+      name: grpc
+      protocol: TCP
+    - containerPort: 26660
+      name: prometheus
+      protocol: TCP
+    - containerPort: 26656
+      name: p2p
+      protocol: TCP
+    - containerPort: 26657
+      name: rpc
+      protocol: TCP
+    - containerPort: 9091
+      name: grpc-web
+      protocol: TCP
+    readinessProbe:
+      failureThreshold: 5
+      httpGet:
+        path: /health
+        port: 26657
+        scheme: HTTP
+      initialDelaySeconds: 1
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+    resources:
+      limits:
+        cpu: '1'
+      requests:
+        cpu: 500m
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /home/operator/cosmos
+      name: vol-chain-home
+    - mountPath: /tmp
+      name: vol-system-tmp
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-jh8t4
+      readOnly: true
+    workingDir: /home/operator
+  - command:
+    - /manager
+    - healthcheck
+    - --rpc-host
+    - http://localhost:26657
+    image: ghcr.io/strangelove-ventures/cosmos-operator:latest
+    imagePullPolicy: Always
+    name: healthcheck
+    ports:
+    - containerPort: 1251
+      protocol: TCP
+    readinessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /
+        port: 1251
+        scheme: HTTP
+      initialDelaySeconds: 1
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+    resources:
+      requests:
+        cpu: 5m
+        memory: 16Mi
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /home/operator/cosmos
+      name: vol-chain-home
+      readOnly: true
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-jh8t4
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  hostname: cosmoshub-mainnet-0
+  initContainers:
+  - args:
+    - -c
+    - rm -rf "$HOME/.tmp/*"
+    command:
+    - sh
+    env:
+    - name: HOME
+      value: /home/operator
+    - name: CHAIN_HOME
+      value: /home/operator/cosmos
+    - name: GENESIS_FILE
+      value: /home/operator/cosmos/config/genesis.json
+    - name: ADDRBOOK_FILE
+      value: /home/operator/cosmos/config/addrbook.json
+    - name: CONFIG_DIR
+      value: /home/operator/cosmos/config
+    - name: DATA_DIR
+      value: /home/operator/cosmos/data
+    image: ghcr.io/strangelove-ventures/infra-toolkit:v0.1.12
+    imagePullPolicy: IfNotPresent
+    name: clean-init
+    resources: {}
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /home/operator/cosmos
+      name: vol-chain-home
+    - mountPath: /tmp
+      name: vol-system-tmp
+    - mountPath: /home/operator/.tmp
+      name: vol-tmp
+    - mountPath: /home/operator/.config
+      name: vol-config
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-jh8t4
+      readOnly: true
+    workingDir: /home/operator
+  - args:
+    - -c
+    - "\nset -eu\nif [ ! -d \"$CHAIN_HOME/data\" ]; then\n\techo \"Initializing chain...\"\
+      \n\tgaiad init --chain-id cosmoshub-4 cosmoshub-mainnet-0 --home \"$CHAIN_HOME\"\
+      \nelse\n\techo \"Skipping chain init; already initialized.\"\nfi\n\necho \"\
+      Initializing into tmp dir for downstream processing...\"\ngaiad init --chain-id\
+      \ cosmoshub-4 cosmoshub-mainnet-0 --home \"$HOME/.tmp\"\n"
+    command:
+    - sh
+    env:
+    - name: HOME
+      value: /home/operator
+    - name: CHAIN_HOME
+      value: /home/operator/cosmos
+    - name: GENESIS_FILE
+      value: /home/operator/cosmos/config/genesis.json
+    - name: ADDRBOOK_FILE
+      value: /home/operator/cosmos/config/addrbook.json
+    - name: CONFIG_DIR
+      value: /home/operator/cosmos/config
+    - name: DATA_DIR
+      value: /home/operator/cosmos/data
+    image: ghcr.io/strangelove-ventures/heighliner/gaia:latest
+    imagePullPolicy: Always
+    name: chain-init
+    resources: {}
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /home/operator/cosmos
+      name: vol-chain-home
+    - mountPath: /tmp
+      name: vol-system-tmp
+    - mountPath: /home/operator/.tmp
+      name: vol-tmp
+    - mountPath: /home/operator/.config
+      name: vol-config
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-jh8t4
+      readOnly: true
+    workingDir: /home/operator
+  - args:
+    - -c
+    - "ls $DATA_DIR/*.db 1> /dev/null 2>&1\nDB_INIT=$?\nif [ $DB_INIT -eq 0 ]; then\n\
+      \techo \"Database already initialized, skipping genesis initialization\"\n\t\
+      exit 0\nfi\n\nset -eu\n\n# $GENESIS_FILE and $CONFIG_DIR already set via pod\
+      \ env vars.\n\nGENESIS_URL=\"$1\"\n\necho \"Downloading genesis file $GENESIS_URL\
+      \ to $GENESIS_FILE...\"\n\ndownload_json() {\n  echo \"Downloading plain json...\"\
+      \n  wget -c -O \"$GENESIS_FILE\" \"$GENESIS_URL\"\n}\n\ndownload_jsongz() {\n\
+      \  echo \"Downloading json.gz...\"\n  wget -c -O - \"$GENESIS_URL\" | gunzip\
+      \ -c >\"$GENESIS_FILE\"\n}\n\ndownload_tar() {\n  echo \"Downloading and extracting\
+      \ tar...\"\n  wget -c -O - \"$GENESIS_URL\" | tar -x -C \"$CONFIG_DIR\"\n}\n\
+      \ndownload_targz() {\n  echo \"Downloading and extracting compressed tar...\"\
+      \n  wget -c -O - \"$GENESIS_URL\" | tar -xz -C \"$CONFIG_DIR\"\n}\n\ndownload_zip()\
+      \ {\n  echo \"Downloading and extracting zip...\"\n  wget -c -O tmp_genesis.zip\
+      \ \"$GENESIS_URL\"\n  unzip tmp_genesis.zip\n  rm tmp_genesis.zip\n  mv genesis.json\
+      \ \"$GENESIS_FILE\"\n}\n\nrm -f \"$GENESIS_FILE\"\n\ncase \"$GENESIS_URL\" in\n\
+      *.json.gz) download_jsongz ;;\n*.json) download_json ;;\n*.tar.gz) download_targz\
+      \ ;;\n*.tar.gzip) download_targz ;;\n*.tar) download_tar ;;\n*.zip) download_zip\
+      \ ;;\n*)\n  echo \"Unable to handle file extension for $GENESIS_URL\"\n  exit\
+      \ 1\n  ;;\nesac\n\necho \"Saved genesis file to $GENESIS_FILE.\"\necho \"Download\
+      \ genesis file complete.\"\n\n\necho \"Genesis $GENESIS_FILE initialized.\"\n"
+    - -s
+    - https://snapshots.polkachu.com/genesis/cosmos/genesis.json
+    command:
+    - sh
+    env:
+    - name: HOME
+      value: /home/operator
+    - name: CHAIN_HOME
+      value: /home/operator/cosmos
+    - name: GENESIS_FILE
+      value: /home/operator/cosmos/config/genesis.json
+    - name: ADDRBOOK_FILE
+      value: /home/operator/cosmos/config/addrbook.json
+    - name: CONFIG_DIR
+      value: /home/operator/cosmos/config
+    - name: DATA_DIR
+      value: /home/operator/cosmos/data
+    image: ghcr.io/strangelove-ventures/infra-toolkit:v0.1.12
+    imagePullPolicy: IfNotPresent
+    name: genesis-init
+    resources: {}
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /home/operator/cosmos
+      name: vol-chain-home
+    - mountPath: /tmp
+      name: vol-system-tmp
+    - mountPath: /home/operator/.tmp
+      name: vol-tmp
+    - mountPath: /home/operator/.config
+      name: vol-config
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-jh8t4
+      readOnly: true
+    workingDir: /home/operator
+  - args:
+    - -c
+    - echo Using default address book
+    command:
+    - sh
+    env:
+    - name: HOME
+      value: /home/operator
+    - name: CHAIN_HOME
+      value: /home/operator/cosmos
+    - name: GENESIS_FILE
+      value: /home/operator/cosmos/config/genesis.json
+    - name: ADDRBOOK_FILE
+      value: /home/operator/cosmos/config/addrbook.json
+    - name: CONFIG_DIR
+      value: /home/operator/cosmos/config
+    - name: DATA_DIR
+      value: /home/operator/cosmos/data
+    image: ghcr.io/strangelove-ventures/infra-toolkit:v0.1.12
+    imagePullPolicy: IfNotPresent
+    name: addrbook-init
+    resources: {}
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /home/operator/cosmos
+      name: vol-chain-home
+    - mountPath: /tmp
+      name: vol-system-tmp
+    - mountPath: /home/operator/.tmp
+      name: vol-tmp
+    - mountPath: /home/operator/.config
+      name: vol-config
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-jh8t4
+      readOnly: true
+    workingDir: /home/operator
+  - args:
+    - -c
+    - "\nset -eu\nCONFIG_DIR=\"$CHAIN_HOME/config\"\nTMP_DIR=\"$HOME/.tmp/config\"\
+      \nOVERLAY_DIR=\"$HOME/.config\"\n\n# This is a hack to prevent adding another\
+      \ init container.\n# Ideally, this step is not concerned with merging config,\
+      \ so it would live elsewhere.\n# The node key is a secret mounted into the main\
+      \ \"node\" container, so we do not need this one.\necho \"Removing node key\
+      \ from chain's init subcommand...\"\nrm -rf \"$CONFIG_DIR/node_key.json\"\n\
+      cp \"$OVERLAY_DIR/node_key.json\" \"$CONFIG_DIR/node_key.json\"\n\necho \"Merging\
+      \ config...\"\nset -x\n\nif [ -f \"$TMP_DIR/config.toml\" ]; then\n\tconfig-merge\
+      \ -f toml \"$TMP_DIR/config.toml\" \"$OVERLAY_DIR/config-overlay.toml\" > \"\
+      $CONFIG_DIR/config.toml\"\nfi\nif [ -f \"$TMP_DIR/app.toml\" ]; then\n\tconfig-merge\
+      \ -f toml \"$TMP_DIR/app.toml\" \"$OVERLAY_DIR/app-overlay.toml\" > \"$CONFIG_DIR/app.toml\"\
+      \nfi\n"
+    command:
+    - sh
+    env:
+    - name: HOME
+      value: /home/operator
+    - name: CHAIN_HOME
+      value: /home/operator/cosmos
+    - name: GENESIS_FILE
+      value: /home/operator/cosmos/config/genesis.json
+    - name: ADDRBOOK_FILE
+      value: /home/operator/cosmos/config/addrbook.json
+    - name: CONFIG_DIR
+      value: /home/operator/cosmos/config
+    - name: DATA_DIR
+      value: /home/operator/cosmos/data
+    image: ghcr.io/strangelove-ventures/infra-toolkit:v0.1.12
+    imagePullPolicy: IfNotPresent
+    name: config-merge
+    resources: {}
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /home/operator/cosmos
+      name: vol-chain-home
+    - mountPath: /tmp
+      name: vol-system-tmp
+    - mountPath: /home/operator/.tmp
+      name: vol-tmp
+    - mountPath: /home/operator/.config
+      name: vol-config
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-jh8t4
+      readOnly: true
+    workingDir: /home/operator
+  - args:
+    - -c
+    - "set -eu\nif test -n \"$(find $DATA_DIR -maxdepth 1 -name '*.db' -print -quit)\"\
+      ; then\n\techo \"Databases in $DATA_DIR already exists; skipping initialization.\"\
+      \n\texit 0\nfi\n\nset -eu\n\n# $CHAIN_HOME already set via pod env vars.\n\n\
+      SNAPSHOT_URL=\"$1\"\n\necho \"Downloading snapshot archive $SNAPSHOT_URL to\
+      \ $CHAIN_HOME...\"\n\ndownload_tar() {\n  echo \"Downloading and extracting\
+      \ tar...\"\n  wget -c -O - \"$SNAPSHOT_URL\" | tar -x -C \"$CHAIN_HOME\"\n}\n\
+      \ndownload_targz() {\n  echo \"Downloading and extracting compressed tar...\"\
+      \n  wget -c -O - \"$SNAPSHOT_URL\" | tar -xz -C \"$CHAIN_HOME\"\n}\n\ndownload_lz4()\
+      \ {\n  echo \"Downloading and extracting lz4...\"\n  wget -c -O - \"$SNAPSHOT_URL\"\
+      \ | lz4 -c -d | tar -x -C \"$CHAIN_HOME\"\n}\n\ndownload_zst() {           \
+      \                                                                          \
+      \           \n    echo \"Downloading and extracting zst...\"               \
+      \                                                       \n    wget -c -O - \"\
+      $SNAPSHOT_URL\" | zstd -d --stdout | tar -x -C \"$CHAIN_HOME\"\n}\n\ncase \"\
+      $SNAPSHOT_URL\" in\n*.tar.lz4) download_lz4 ;;\n*.tar.zst) download_zst ;;\n\
+      *.tar.gzip) download_targz ;;\n*.tar.gz) download_targz ;;\n*.tar) download_tar\
+      \ ;;\n*)\n  echo \"Unable to handle file extension for $SNAPSHOT_URL\"\n  exit\
+      \ 1\n  ;;\nesac\n\necho \"Download and extract snapshot complete.\"\n\n\necho\
+      \ \"$DATA_DIR initialized.\"\n"
+    - -s
+    - https://snapshots.polkachu.com/snapshots/cosmos/cosmos_31271176.tar.lz4
+    command:
+    - sh
+    env:
+    - name: HOME
+      value: /home/operator
+    - name: CHAIN_HOME
+      value: /home/operator/cosmos
+    - name: GENESIS_FILE
+      value: /home/operator/cosmos/config/genesis.json
+    - name: ADDRBOOK_FILE
+      value: /home/operator/cosmos/config/addrbook.json
+    - name: CONFIG_DIR
+      value: /home/operator/cosmos/config
+    - name: DATA_DIR
+      value: /home/operator/cosmos/data
+    image: ghcr.io/strangelove-ventures/infra-toolkit:v0.1.12
+    imagePullPolicy: IfNotPresent
+    name: snapshot-restore
+    resources: {}
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /home/operator/cosmos
+      name: vol-chain-home
+    - mountPath: /tmp
+      name: vol-system-tmp
+    - mountPath: /home/operator/.tmp
+      name: vol-tmp
+    - mountPath: /home/operator/.config
+      name: vol-config
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-jh8t4
+      readOnly: true
+    workingDir: /home/operator
+  - command:
+    - /manager
+    - versioncheck
+    env:
+    - name: HOME
+      value: /home/operator
+    - name: CHAIN_HOME
+      value: /home/operator/cosmos
+    - name: GENESIS_FILE
+      value: /home/operator/cosmos/config/genesis.json
+    - name: ADDRBOOK_FILE
+      value: /home/operator/cosmos/config/addrbook.json
+    - name: CONFIG_DIR
+      value: /home/operator/cosmos/config
+    - name: DATA_DIR
+      value: /home/operator/cosmos/data
+    image: ghcr.io/strangelove-ventures/cosmos-operator:latest
+    imagePullPolicy: Always
+    name: version-check
+    resources:
+      requests:
+        cpu: 5m
+        memory: 16Mi
+    securityContext: {}
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /home/operator/cosmos
+      name: vol-chain-home
+    - mountPath: /tmp
+      name: vol-system-tmp
+    - mountPath: /home/operator/.tmp
+      name: vol-tmp
+    - mountPath: /home/operator/.config
+      name: vol-config
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-jh8t4
+      readOnly: true
+    workingDir: /home/operator
+  nodeName: gke-cluster-3-default-pool-a774b394-84fv
+  preemptionPolicy: PreemptLowerPriority
+  priority: 0
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext:
+    fsGroup: 1025
+    fsGroupChangePolicy: OnRootMismatch
+    runAsGroup: 0
+    runAsNonRoot: false
+    runAsUser: 0
+    seccompProfile:
+      type: RuntimeDefault
+  serviceAccount: cosmoshub-mainnet-vc-sa
+  serviceAccountName: cosmoshub-mainnet-vc-sa
+  subdomain: cosmoshub-mainnet
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - name: vol-chain-home
+    persistentVolumeClaim:
+      claimName: pvc-cosmoshub-mainnet-0
+  - emptyDir: {}
+    name: vol-tmp
+  - configMap:
+      defaultMode: 420
+      items:
+      - key: config-overlay.toml
+        path: config-overlay.toml
+      - key: app-overlay.toml
+        path: app-overlay.toml
+      - key: node_key.json
+        path: node_key.json
+      name: cosmoshub-mainnet-0
+    name: vol-config
+  - emptyDir: {}
+    name: vol-system-tmp
+  - name: kube-api-access-jh8t4
+    projected:
+      defaultMode: 420
+      sources:
+      - serviceAccountToken:
+          expirationSeconds: 3607
+          path: token
+      - configMap:
+          items:
+          - key: ca.crt
+            path: ca.crt
+          name: kube-root-ca.crt
+      - downwardAPI:
+          items:
+          - fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+            path: namespace
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: '2026-05-26T02:24:18Z'
+    observedGeneration: 1
+    status: 'True'
+    type: PodReadyToStartContainers
+  - lastProbeTime: null
+    lastTransitionTime: '2026-05-26T03:29:09Z'
+    observedGeneration: 1
+    status: 'True'
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: '2026-05-26T02:24:08Z'
+    message: 'containers with unready status: [node healthcheck]'
+    observedGeneration: 1
+    reason: ContainersNotReady
+    status: 'False'
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: '2026-05-26T02:24:08Z'
+    message: 'containers with unready status: [node healthcheck]'
+    observedGeneration: 1
+    reason: ContainersNotReady
+    status: 'False'
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: '2026-05-26T02:24:08Z'
+    observedGeneration: 1
+    status: 'True'
+    type: PodScheduled
+  containerStatuses:
+  - allocatedResources:
+      cpu: 5m
+      memory: 16Mi
+    containerID: containerd://cd141cbff68a5291f9bf0f3e021ec288350542f686b937b74b7aae6a7fb6f0cf
+    image: ghcr.io/strangelove-ventures/cosmos-operator:latest
+    imageID: ghcr.io/strangelove-ventures/cosmos-operator@sha256:f5f4285d6678484c42812ba7afe8d6fcc168ddf4adf580b40874c94527300866
+    lastState: {}
+    name: healthcheck
+    ready: false
+    resources:
+      requests:
+        cpu: 5m
+        memory: 16Mi
+    restartCount: 0
+    started: true
+    state:
+      running:
+        startedAt: '2026-05-26T03:29:11Z'
+    user:
+      linux:
+        gid: 0
+        supplementalGroups:
+        - 0
+        - 1025
+        uid: 0
+    volumeMounts:
+    - mountPath: /home/operator/cosmos
+      name: vol-chain-home
+      readOnly: true
+      recursiveReadOnly: Disabled
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-jh8t4
+      readOnly: true
+      recursiveReadOnly: Disabled
+  - allocatedResources:
+      cpu: 500m
+    containerID: containerd://eb1f60f6396f83e438f98fae2a359402904b0c6994280805af62f19c4b616fa1
+    image: ghcr.io/strangelove-ventures/heighliner/gaia:latest
+    imageID: ghcr.io/strangelove-ventures/heighliner/gaia@sha256:8932859735e415c4d89ccdb90facc86aa80baea3dcc366090df2fb2e337ea56a
+    lastState: {}
+    name: node
+    ready: false
+    resources:
+      limits:
+        cpu: '1'
+      requests:
+        cpu: 500m
+    restartCount: 0
+    started: true
+    state:
+      running:
+        startedAt: '2026-05-26T03:29:10Z'
+    user:
+      linux:
+        gid: 0
+        supplementalGroups:
+        - 0
+        - 1025
+        uid: 0
+    volumeMounts:
+    - mountPath: /home/operator/cosmos
+      name: vol-chain-home
+    - mountPath: /tmp
+      name: vol-system-tmp
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-jh8t4
+      readOnly: true
+      recursiveReadOnly: Disabled
+  hostIP: 10.128.0.31
+  hostIPs:
+  - ip: 10.128.0.31
+  initContainerStatuses:
+  - containerID: containerd://7df601abe64713b0ee8a57a310ca761aaedd934e085a7cb655dc2aeae889f928
+    image: ghcr.io/strangelove-ventures/infra-toolkit:v0.1.12
+    imageID: ghcr.io/strangelove-ventures/infra-toolkit@sha256:ccdefb2074ddd060dd4db06ccc126e32a6a5a10bd04adadb6d9f46c571964c97
+    lastState: {}
+    name: clean-init
+    ready: true
+    resources: {}
+    restartCount: 0
+    started: false
+    state:
+      terminated:
+        containerID: containerd://7df601abe64713b0ee8a57a310ca761aaedd934e085a7cb655dc2aeae889f928
+        exitCode: 0
+        finishedAt: '2026-05-26T02:24:18Z'
+        reason: Completed
+        startedAt: '2026-05-26T02:24:17Z'
+    user:
+      linux:
+        gid: 0
+        supplementalGroups:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 6
+        - 10
+        - 11
+        - 20
+        - 26
+        - 27
+        - 1025
+        uid: 0
+    volumeMounts:
+    - mountPath: /home/operator/cosmos
+      name: vol-chain-home
+    - mountPath: /tmp
+      name: vol-system-tmp
+    - mountPath: /home/operator/.tmp
+      name: vol-tmp
+    - mountPath: /home/operator/.config
+      name: vol-config
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-jh8t4
+      readOnly: true
+      recursiveReadOnly: Disabled
+  - containerID: containerd://05caa072509fa8b52ad8ec970cc8a21c503a844515842e20b3511161e9fb034e
+    image: ghcr.io/strangelove-ventures/heighliner/gaia:latest
+    imageID: ghcr.io/strangelove-ventures/heighliner/gaia@sha256:8932859735e415c4d89ccdb90facc86aa80baea3dcc366090df2fb2e337ea56a
+    lastState: {}
+    name: chain-init
+    ready: true
+    resources: {}
+    restartCount: 0
+    started: false
+    state:
+      terminated:
+        containerID: containerd://05caa072509fa8b52ad8ec970cc8a21c503a844515842e20b3511161e9fb034e
+        exitCode: 0
+        finishedAt: '2026-05-26T02:24:21Z'
+        reason: Completed
+        startedAt: '2026-05-26T02:24:19Z'
+    user:
+      linux:
+        gid: 0
+        supplementalGroups:
+        - 0
+        - 1025
+        uid: 0
+    volumeMounts:
+    - mountPath: /home/operator/cosmos
+      name: vol-chain-home
+    - mountPath: /tmp
+      name: vol-system-tmp
+    - mountPath: /home/operator/.tmp
+      name: vol-tmp
+    - mountPath: /home/operator/.config
+      name: vol-config
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-jh8t4
+      readOnly: true
+      recursiveReadOnly: Disabled
+  - containerID: containerd://e1cb7450f44bbe7263099dd105b1076e536873ff3e781acd4d1df5994c191150
+    image: ghcr.io/strangelove-ventures/infra-toolkit:v0.1.12
+    imageID: ghcr.io/strangelove-ventures/infra-toolkit@sha256:ccdefb2074ddd060dd4db06ccc126e32a6a5a10bd04adadb6d9f46c571964c97
+    lastState: {}
+    name: genesis-init
+    ready: true
+    resources: {}
+    restartCount: 0
+    started: false
+    state:
+      terminated:
+        containerID: containerd://e1cb7450f44bbe7263099dd105b1076e536873ff3e781acd4d1df5994c191150
+        exitCode: 0
+        finishedAt: '2026-05-26T02:24:28Z'
+        reason: Completed
+        startedAt: '2026-05-26T02:24:23Z'
+    user:
+      linux:
+        gid: 0
+        supplementalGroups:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 6
+        - 10
+        - 11
+        - 20
+        - 26
+        - 27
+        - 1025
+        uid: 0
+    volumeMounts:
+    - mountPath: /home/operator/cosmos
+      name: vol-chain-home
+    - mountPath: /tmp
+      name: vol-system-tmp
+    - mountPath: /home/operator/.tmp
+      name: vol-tmp
+    - mountPath: /home/operator/.config
+      name: vol-config
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-jh8t4
+      readOnly: true
+      recursiveReadOnly: Disabled
+  - containerID: containerd://a281aa7c4e5c95eb0e5a0f60653b0035ba10308e55b532785aa2f22d6cda2469
+    image: ghcr.io/strangelove-ventures/infra-toolkit:v0.1.12
+    imageID: ghcr.io/strangelove-ventures/infra-toolkit@sha256:ccdefb2074ddd060dd4db06ccc126e32a6a5a10bd04adadb6d9f46c571964c97
+    lastState: {}
+    name: addrbook-init
+    ready: true
+    resources: {}
+    restartCount: 0
+    started: false
+    state:
+      terminated:
+        containerID: containerd://a281aa7c4e5c95eb0e5a0f60653b0035ba10308e55b532785aa2f22d6cda2469
+        exitCode: 0
+        finishedAt: '2026-05-26T02:24:29Z'
+        reason: Completed
+        startedAt: '2026-05-26T02:24:29Z'
+    user:
+      linux:
+        gid: 0
+        supplementalGroups:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 6
+        - 10
+        - 11
+        - 20
+        - 26
+        - 27
+        - 1025
+        uid: 0
+    volumeMounts:
+    - mountPath: /home/operator/cosmos
+      name: vol-chain-home
+    - mountPath: /tmp
+      name: vol-system-tmp
+    - mountPath: /home/operator/.tmp
+      name: vol-tmp
+    - mountPath: /home/operator/.config
+      name: vol-config
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-jh8t4
+      readOnly: true
+      recursiveReadOnly: Disabled
+  - containerID: containerd://1b4c7d75f325ab784f4878082c18c25513701cb4c7c978a25c19012904b4c44e
+    image: ghcr.io/strangelove-ventures/infra-toolkit:v0.1.12
+    imageID: ghcr.io/strangelove-ventures/infra-toolkit@sha256:ccdefb2074ddd060dd4db06ccc126e32a6a5a10bd04adadb6d9f46c571964c97
+    lastState: {}
+    name: config-merge
+    ready: true
+    resources: {}
+    restartCount: 0
+    started: false
+    state:
+      terminated:
+        containerID: containerd://1b4c7d75f325ab784f4878082c18c25513701cb4c7c978a25c19012904b4c44e
+        exitCode: 0
+        finishedAt: '2026-05-26T02:24:32Z'
+        reason: Completed
+        startedAt: '2026-05-26T02:24:30Z'
+    user:
+      linux:
+        gid: 0
+        supplementalGroups:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 6
+        - 10
+        - 11
+        - 20
+        - 26
+        - 27
+        - 1025
+        uid: 0
+    volumeMounts:
+    - mountPath: /home/operator/cosmos
+      name: vol-chain-home
+    - mountPath: /tmp
+      name: vol-system-tmp
+    - mountPath: /home/operator/.tmp
+      name: vol-tmp
+    - mountPath: /home/operator/.config
+      name: vol-config
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-jh8t4
+      readOnly: true
+      recursiveReadOnly: Disabled
+  - containerID: containerd://04a6f84efea463fc695656c1e066c3678ccf4765079b4d40e58aa29599dacbd6
+    image: ghcr.io/strangelove-ventures/infra-toolkit:v0.1.12
+    imageID: ghcr.io/strangelove-ventures/infra-toolkit@sha256:ccdefb2074ddd060dd4db06ccc126e32a6a5a10bd04adadb6d9f46c571964c97
+    lastState: {}
+    name: snapshot-restore
+    ready: true
+    resources: {}
+    restartCount: 1
+    started: false
+    state:
+      terminated:
+        containerID: containerd://04a6f84efea463fc695656c1e066c3678ccf4765079b4d40e58aa29599dacbd6
+        exitCode: 0
+        finishedAt: '2026-05-26T03:29:06Z'
+        reason: Completed
+        startedAt: '2026-05-26T03:29:06Z'
+    user:
+      linux:
+        gid: 0
+        supplementalGroups:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 6
+        - 10
+        - 11
+        - 20
+        - 26
+        - 27
+        - 1025
+        uid: 0
+    volumeMounts:
+    - mountPath: /home/operator/cosmos
+      name: vol-chain-home
+    - mountPath: /tmp
+      name: vol-system-tmp
+    - mountPath: /home/operator/.tmp
+      name: vol-tmp
+    - mountPath: /home/operator/.config
+      name: vol-config
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-jh8t4
+      readOnly: true
+      recursiveReadOnly: Disabled
+  - allocatedResources:
+      cpu: 5m
+      memory: 16Mi
+    containerID: containerd://ec2a4f99be74e00f2a8316ef0bb0058d29195e7a87ea489b3308b1466057bd63
+    image: ghcr.io/strangelove-ventures/cosmos-operator:latest
+    imageID: ghcr.io/strangelove-ventures/cosmos-operator@sha256:f5f4285d6678484c42812ba7afe8d6fcc168ddf4adf580b40874c94527300866
+    lastState: {}
+    name: version-check
+    ready: true
+    resources:
+      requests:
+        cpu: 5m
+        memory: 16Mi
+    restartCount: 0
+    started: false
+    state:
+      terminated:
+        containerID: containerd://ec2a4f99be74e00f2a8316ef0bb0058d29195e7a87ea489b3308b1466057bd63
+        exitCode: 0
+        finishedAt: '2026-05-26T03:29:08Z'
+        reason: Completed
+        startedAt: '2026-05-26T03:29:08Z'
+    user:
+      linux:
+        gid: 0
+        supplementalGroups:
+        - 0
+        - 1025
+        uid: 0
+    volumeMounts:
+    - mountPath: /home/operator/cosmos
+      name: vol-chain-home
+    - mountPath: /tmp
+      name: vol-system-tmp
+    - mountPath: /home/operator/.tmp
+      name: vol-tmp
+    - mountPath: /home/operator/.config
+      name: vol-config
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-jh8t4
+      readOnly: true
+      recursiveReadOnly: Disabled
+  observedGeneration: 1
+  phase: Running
+  podIP: 10.50.129.7
+  podIPs:
+  - ip: 10.50.129.7
+  qosClass: Burstable
+  startTime: '2026-05-26T02:24:08Z'
