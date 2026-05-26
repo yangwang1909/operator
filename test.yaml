@@ -23,7 +23,7 @@ spec:
     app:
       minGasPrice: "0.0025uatom"
   podTemplate:
-    image: "ghcr.io/strangelove-ventures/heighliner/gaia:latest"
+    image: "ghcr.io/strangelove-ventures/heighliner/gaia:v1.7.6"
     resources:
       requests:
         cpu: "0.5"
